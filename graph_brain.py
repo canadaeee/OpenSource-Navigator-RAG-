@@ -37,6 +37,7 @@ def build_graph(retriever):
         yes_docs = []      # 直接相关
         partial_docs = []  # 间接相关
         
+        
         for d in documents:
             try:
                 score = grader_chain.invoke({"question": question, "document": d.page_content})
