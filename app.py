@@ -8,7 +8,7 @@ from profiler import generate_suggestions
 
 st.set_page_config(page_title="OpenSource Navigator", page_icon="🧭", layout="wide")
 
-st.title("🧭 OpenSource Navigator")
+st.title("OpenSource Navigator")
 
 # --- Session State 初始化 ---
 if "current_project" not in st.session_state:
