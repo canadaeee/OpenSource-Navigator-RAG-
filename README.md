@@ -1,6 +1,6 @@
 # 🧭 OpenSource Navigator (Project Synapse)
 
-> **基于混合 RAG 架构的开源项目智能领航员**
+> **基于混合 RAG 架构的开源项目智能部署助手**
 >
 > _Hybrid RAG Agent for Analyzing Open Source Repositories_
 
