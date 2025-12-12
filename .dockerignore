@@ -1,0 +1,60 @@
+# ===========================
+# Docker Build 忽略文件
+# ===========================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment Variables (敏感信息)
+.env
+.env.local
+.env.*.local
+
+# Project Data (运行时生成)
+source_code/
+chroma_db_store/
+
+# Logs
+*.log
+logs/
+debug/
+
+# OS Generated
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation (可选保留)
+# README.md
+# LICENSE

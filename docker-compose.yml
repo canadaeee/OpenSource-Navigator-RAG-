@@ -1,0 +1,60 @@
+# ===========================
+# Docker Compose 配置
+# OpenSource Navigator + Ollama 一键启动
+# ===========================
+
+version: '3.8'
+
+services:
+  # ===========================
+  # Ollama 服务 (本地大模型)
+  # ===========================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # GPU 支持 (如果有 NVIDIA GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # ===========================
+  # OpenSource Navigator 主服务
+  # ===========================
+  navigator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opensource-navigator
+    ports:
+      - "8501:8501"
+    volumes:
+      # 持久化向量数据库和下载的源代码
+      - ./chroma_db_store:/app/chroma_db_store
+      - ./source_code:/app/source_code
+    environment:
+      # 从 .env 文件读取 API 密钥
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      # Ollama 服务地址 (容器网络中使用服务名)
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
