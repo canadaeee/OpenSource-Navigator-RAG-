@@ -28,7 +28,7 @@ def set_question(question_text):
 # ================= 侧边栏 =================
 with st.sidebar:
     st.header("🗂️ 项目控制台")
-    tab1, tab2 = st.tabs(["📚 已有项目", "➕ 导入新项目"])
+    tab1, tab2 = st.tabs(["📚 已导入项目", "➕ 导入新项目"])
     
     # 辅助函数：加载项目后的通用逻辑
     def load_project_logic(proj_name):
@@ -123,11 +123,11 @@ else:
                         elif key == "grade_documents":
                             n = len(value["documents"])
                             if n > 0:
-                                status_container.write(f"✅ 评分保留 {n} 个有效片段")
+                                status_container.write(f"✅ 保留 {n} 个有效片段")
                             # 注意：由于兜底机制，这里不再提前结束流程
                             # 即使评分后文档较少，也会尝试生成回答
                         elif key == "generate":
-                            status_container.write("💡 Kimi 正在生成回答...")
+                            status_container.write("💡 Agent正在回答...")
                             final_answer = value["generation"]
                 
                 status_container.update(label="完成", state="complete", expanded=False)
