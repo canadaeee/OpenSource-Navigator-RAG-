@@ -6,10 +6,12 @@ from langchain_core.output_parsers import JsonOutputParser
 
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
+
 # 配置：支持从环境变量读取 Ollama 地址 (Docker 部署时使用)
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 EMBED_MODEL = "nomic-embed-text"
 LOCAL_LLM = "qwen2.5:7b"
+
 
 def get_retriever(db_path):
     """
