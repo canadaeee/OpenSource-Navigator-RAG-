@@ -39,7 +39,7 @@ with st.sidebar:
         st.session_state["messages"] = [{"role": "assistant", "content": f"项目 **{proj_name}** 已就绪！"}]
         
         # --- 关键：调用 Profiler 生成建议 ---
-        with st.spinner("🧠 正在阅读 README 生成建议..."):
+        with st.spinner("🧠 正在查看文档并提供建议..."):
             suggestions = generate_suggestions(proj_name)
             st.session_state["suggested_questions"] = suggestions
         
@@ -124,9 +124,8 @@ else:
                             n = len(value["documents"])
                             if n > 0:
                                 status_container.write(f"✅ 评分保留 {n} 个有效片段")
-                            else:
-                                status_container.write("🚫 无相关文档，流程结束")
-                                final_answer = "抱歉，知识库中未找到相关信息。"
+                            # 注意：由于兜底机制，这里不再提前结束流程
+                            # 即使评分后文档较少，也会尝试生成回答
                         elif key == "generate":
                             status_container.write("💡 Kimi 正在生成回答...")
                             final_answer = value["generation"]

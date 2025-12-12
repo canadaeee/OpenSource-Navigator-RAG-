@@ -32,11 +32,37 @@ def build_graph(retriever):
         print("--- GRADE ---")
         question = state["question"]
         documents = state["documents"]
-        filtered_docs = []
+        original_docs = documents.copy()  # 保留原始文档用于兜底
+        
+        yes_docs = []      # 直接相关
+        partial_docs = []  # 间接相关
+        
         for d in documents:
-            score = grader_chain.invoke({"question": question, "document": d.page_content})
-            if score.get("score") == "yes":
-                filtered_docs.append(d)
+            try:
+                score = grader_chain.invoke({"question": question, "document": d.page_content})
+                grade = score.get("score", "no").lower()
+                if grade == "yes":
+                    yes_docs.append(d)
+                elif grade == "partial":
+                    partial_docs.append(d)
+                # "no" 的文档直接丢弃
+            except Exception as e:
+                # 评分失败时，保守地将文档归入 partial
+                print(f"⚠️ 评分异常，保留文档: {e}")
+                partial_docs.append(d)
+        
+        # 兜底策略：优先 yes，其次 partial，最后用原始 Top-3
+        if yes_docs:
+            filtered_docs = yes_docs + partial_docs[:2]  # yes 全部 + 最多2个 partial
+            print(f"✅ 使用 {len(yes_docs)} 个直接相关 + {min(len(partial_docs), 2)} 个间接相关文档")
+        elif partial_docs:
+            filtered_docs = partial_docs
+            print(f"⚠️ 无直接相关文档，使用 {len(partial_docs)} 个间接相关文档")
+        else:
+            # 最终兜底：使用原始检索结果的前3个
+            filtered_docs = original_docs[:3]
+            print(f"🔄 兜底模式：使用原始检索的前 {len(filtered_docs)} 个文档")
+        
         return {"documents": filtered_docs, "question": question}
 
     def generate(state):

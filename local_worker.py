@@ -24,8 +24,8 @@ def get_retriever(db_path):
         persist_directory=db_path, 
         embedding_function=embeddings
     )
-    # 扩大搜索范围到 10
-    return vectorstore.as_retriever(search_kwargs={"k": 10})
+    # 扩大搜索范围到 50
+    return vectorstore.as_retriever(search_kwargs={"k": 50})
 
 def get_grader_chain():
     """返回评分链对象 (无状态，可复用)"""
@@ -36,16 +36,26 @@ def get_grader_chain():
         base_url=OLLAMA_BASE_URL
     )
 
+    # 优化后的 Prompt：更宽容的评分策略 + 三级评分
     prompt = ChatPromptTemplate.from_template(
-        """你是一个严谨的文档评分员。
-        请评估检索到的文档片段是否与用户的问题相关。
-        如果文档包含相关关键词或语义，评分为 'yes'，否则为 'no'。
-        必须输出严格的 JSON 格式：
-        {{ "score": "yes" }} 或 {{ "score": "no" }}
+        """你是一个宽容的文档相关性评分员。你的任务是判断文档是否可能对回答问题有帮助。
 
-        问题: {question}
-        文档: {document}
-        JSON 输出:
-        """
+评分标准（请倾向于保留文档）：
+- "yes": 文档**直接相关**，包含能回答问题的关键信息
+- "partial": 文档**间接相关**，包含背景信息、相关概念、或可能有用的上下文
+- "no": 文档**完全无关**，与问题毫无关联
+
+重要提示：
+1. 如果文档来自同一项目/代码库，倾向于评为 "partial" 而非 "no"
+2. 代码文件中的函数名、类名、变量名如果与问题相关，应评为 "yes" 或 "partial"
+3. README、配置文件、注释通常包含有用上下文，倾向于保留
+
+必须输出严格的 JSON 格式：
+{{ "score": "yes" }} 或 {{ "score": "partial" }} 或 {{ "score": "no" }}
+
+问题: {question}
+文档: {document}
+JSON 输出:
+"""
     )
     return prompt | llm | JsonOutputParser()
